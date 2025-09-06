@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const [user, setUser] = useState(null); // store user data
@@ -7,6 +8,8 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState(null);
   const [previewPic, setPreviewPic] = useState(null);
+
+  const navigate = useNavigate();
 
   // Fetch user profile from backend on component mount
   useEffect(() => {
@@ -71,6 +74,10 @@ export default function Profile() {
 
   return (
     <div className="profile-container">
+        <button className="back-button"
+        onClick={() => navigate(-1)} >
+        ← Back
+      </button>
       <h2>Your Profile</h2>
 
       <div className="profile-section">
@@ -200,6 +207,19 @@ export default function Profile() {
           </div>
         </form>
       </div>
+
+
+    <div className="profile-nav-card">
+        
+      <div className="profile-nav-title">Navigations</div>
+      <button className="profile-nav-btn"
+        onClick={() => navigate("/MyProducts")}> My Products  </button>
+
+      <button  className="profile-nav-btn"
+        onClick={() => navigate("/my-purchases")} > My Purchases </button>
+    </div>
+
+
     </div>
   );
 }

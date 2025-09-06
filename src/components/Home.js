@@ -1,28 +1,56 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../styles.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function Home() {
+function Navbar() {
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
   return (
-    <div className="desktop-container">
-      {/* Header/Navbar */}
-
     <header className="navbar">
-    <div className="navbar-logo">EcoFinds</div>
-    <nav className="navbar-links">
+      <div className="navbar-logo">EcoFinds</div>
+      <nav className="navbar-links">
         <Link to="/cosmetics">Cosmetics</Link>
         <Link to="/fragrance">Fragrance</Link>
         <Link to="/skin">Skin</Link>
         <Link to="/discover">Discover</Link>
-    </nav>
-    <div className="navbar-icons">
+        <Link to="/ProductCreate" >Create Product</Link>
+      </nav>
+      <div className="navbar-icons">
         <Link to="/wishlist" title="Wishlist">♥</Link>
         <Link to="/profile" title="Profile">👤</Link>
         <Link to="/search" title="Search">🔍</Link>
-        <Link to="/cart" title="Cart">🛒</Link>
-    </div>
-    </header>
+        <Link to="/CartItems" title="Cart">🛒</Link>
 
+        {!isLoggedIn ? (
+          <button onClick={() => navigate("/login")} className="btn-nav">
+            Login
+          </button>
+        ) : (
+          <button onClick={handleLogout} className="btn-nav">
+            Logout
+          </button>
+        )}
+      </div>
+    </header>
+  );
+}
+
+function Home() {
+  return (
+    <div className="desktop-container">
+      <Navbar />
 
       {/* Hero/banner section */}
       <section className="hero-section">
