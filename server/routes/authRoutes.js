@@ -5,10 +5,27 @@ import User from "../models/user.js";
 
 const router = express.Router();
 
+// Middleware to verify JWT token
+function verifyToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ msg: "No token provided" });
+
+  const token = authHeader.split(" ")[1];
+  if (!token) return res.status(401).json({ msg: "Invalid token format" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.id;
+    next();
+  } catch (err) {
+    return res.status(401).json({ msg: "Invalid token" });
+  }
+}
+
 // REGISTER
 router.post("/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { firstname, lastname, username, number, email, gender, age, password } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -18,7 +35,17 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({
+      firstname,
+      lastname,
+      username,
+      email,
+      phone: number,
+      gender,
+      age,
+      password: hashedPassword,
+    });
+
     await newUser.save();
 
     res.status(201).json({ msg: "User registered successfully" });
@@ -28,19 +55,18 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// LOGIN (optional snippet)
+// LOGIN
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     res.json({
       token,
@@ -49,6 +75,46 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error("Login error:", error.message);
     res.status(500).json({ msg: error.message });
+  }
+});
+
+// GET /me - get logged-in user profile (protected)
+router.get("/me", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password -__v");
+    if (!user) return res.status(404).json({ msg: "User not found" });
+
+    res.json({ user });
+  } catch (error) {
+    console.error("Fetch user error:", error.message);
+    res.status(500).json({ msg: "Server error" });
+  }
+});
+
+// UPDATE /me - update logged in user profile (protected)
+router.put("/me", verifyToken, async (req, res) => {
+  try {
+    const updateData = { ...req.body };
+
+    if (updateData.password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(updateData.password, salt);
+      updateData.password = hashedPassword;
+    } else {
+      delete updateData.password;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.userId, updateData, {
+      new: true,
+      select: "-password -__v",
+    });
+
+    if (!updatedUser) return res.status(404).json({ msg: "User not found" });
+
+    res.json({ user: updatedUser });
+  } catch (error) {
+    console.error("Update profile error:", error.message);
+    res.status(500).json({ msg: "Server error" });
   }
 });
 

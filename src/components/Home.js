@@ -1,25 +1,28 @@
 import React from "react";
 import "../styles.css";
+import { Link } from "react-router-dom";
 
 function Home() {
   return (
     <div className="desktop-container">
       {/* Header/Navbar */}
-      <header className="navbar">
-        <div className="navbar-logo">ShopX</div>
-        <nav className="navbar-links">
-          <a href="#">Cosmetics</a>
-          <a href="#">Fragrance</a>
-          <a href="#">Skin</a>
-          <a href="#">Discover</a>
-        </nav>
-        <div className="navbar-icons">
-          <a href="#" title="Wishlist">♥</a>
-          <a href="/login" title="Profile">👤</a>
-          <a href="#" title="Search">🔍</a>
-          <a href="#" title="Cart">🛒</a>
-        </div>
-      </header>
+
+    <header className="navbar">
+    <div className="navbar-logo">EcoFinds</div>
+    <nav className="navbar-links">
+        <Link to="/cosmetics">Cosmetics</Link>
+        <Link to="/fragrance">Fragrance</Link>
+        <Link to="/skin">Skin</Link>
+        <Link to="/discover">Discover</Link>
+    </nav>
+    <div className="navbar-icons">
+        <Link to="/wishlist" title="Wishlist">♥</Link>
+        <Link to="/profile" title="Profile">👤</Link>
+        <Link to="/search" title="Search">🔍</Link>
+        <Link to="/cart" title="Cart">🛒</Link>
+    </div>
+    </header>
+
 
       {/* Hero/banner section */}
       <section className="hero-section">
@@ -55,7 +58,7 @@ function Home() {
 
       {/* Footer */}
       <footer className="footer">
-        <p>© 2025 ShopX. All rights reserved.</p>
+        <p>© 2025 EcoFinds. All rights reserved.</p>
       </footer>
     </div>
   );

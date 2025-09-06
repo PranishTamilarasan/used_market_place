@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./components/Home";
-import Navbar from "./components/Navbar";
+import Profile from "./components/Profile";
+
 
 const isAuthenticated = () => {
   return !!localStorage.getItem("token");
@@ -24,6 +25,7 @@ function App() {
             isAuthenticated() ? <Home /> : <Navigate to="/login" />
           }
         />
+        <Route path="/Profile" element={<Profile />} />
 
         {/* Catch-all 404 */}
         <Route path="*" element={<h2 className="text-center mt-20">404 - Page Not Found</h2>} />

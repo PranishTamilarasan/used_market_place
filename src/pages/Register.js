@@ -4,7 +4,17 @@ import API from "../services/api";
 import "../styles.css";
 
 export default function Register() {
-  const [form, setForm] = useState({ email: "", password: "", confirm: "" });
+  const [form, setForm] = useState({
+    firstname: "",
+    lastname: "",
+    username: '',
+    number: "",
+    email: "",
+    gender: "",
+    age: "",
+    password: "",
+    confirm: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [strength, setStrength] = useState(0);
   const navigate = useNavigate();
@@ -29,12 +39,31 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (form.password !== form.confirm) {
       alert("❌ Passwords do not match");
       return;
     }
+    if (!form.gender) {
+      alert("❌ Please select your gender");
+      return;
+    }
+    if (form.age && (isNaN(form.age) || form.age <= 0)) {
+      alert("❌ Please enter a valid age");
+      return;
+    }
+
     try {
-      await API.post("/auth/register", { email: form.email, password: form.password, username: form.email.split("@")[0] });
+      await API.post("/auth/register", {
+        firstname: form.firstname,
+        lastname: form.lastname,
+        username: form.firstname + (form.lastname ? " " + form.lastname : ""), // creating username from names
+        number: form.number,
+        email: form.email,
+        gender: form.gender,
+        age: form.age,
+        password: form.password,
+      });
       alert("✅ Account created! Please login.");
       navigate("/login");
     } catch (err) {
@@ -48,7 +77,37 @@ export default function Register() {
         <h2>Create Your Account ✨</h2>
 
         <form onSubmit={handleSubmit}>
-          {/* Email */}
+          <div className="input-group">
+            <input
+              type="text"
+              name="firstname"
+              placeholder="First Name"
+              value={form.firstname}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="text"
+              name="lastname"
+              placeholder="Last Name"
+              value={form.lastname}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="tel"
+              name="number"
+              placeholder="Phone Number"
+              value={form.number}
+              onChange={handleChange}
+            />
+          </div>
+
           <div className="input-group">
             <input
               type="email"
@@ -60,7 +119,27 @@ export default function Register() {
             />
           </div>
 
-          {/* Password */}
+          <div className="input-group">
+            <select name="gender" value={form.gender} onChange={handleChange} required>
+              <option value="">Select Gender</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+              <option value="prefer_not_say">Prefer not to say</option>
+            </select>
+          </div>
+
+          <div className="input-group">
+            <input
+              type="number"
+              name="age"
+              placeholder="Age"
+              min="1"
+              value={form.age}
+              onChange={handleChange}
+            />
+          </div>
+
           <div className="input-group">
             <input
               type={showPassword ? "text" : "password"}
@@ -75,36 +154,31 @@ export default function Register() {
             </button>
           </div>
 
-          {/* Confirm Password */}
           <div className="input-group">
             <input
               type={showPassword ? "text" : "password"}
               name="confirm"
-              placeholder="Repeat password"
+              placeholder="Confirm Password"
               value={form.confirm}
               onChange={handleChange}
               required
             />
           </div>
 
-          {/* Password Strength */}
           <div className="strength-meter">
             {[0, 1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className={`strength-bar ${i < strength ? "filled" : ""}`}
-              ></div>
+              <div key={i} className={`strength-bar ${i < strength ? "filled" : ""}`}></div>
             ))}
             <p className="strength-text">
               Password strength: {["Very weak", "Weak", "Okay", "Good", "Strong"][strength]}
             </p>
           </div>
 
-          {/* Submit */}
-          <button type="submit" className="submit-btn">Create Account</button>
+          <button type="submit" className="submit-btn">
+            Create Account
+          </button>
         </form>
 
-        {/* Switch to login */}
         <p className="switch-text">
           Already have an account?{" "}
           <button className="switch-link" onClick={() => navigate("/login")}>
